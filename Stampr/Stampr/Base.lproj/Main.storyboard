@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Stampr" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="b1L-Cv-dDu">
+                                <rect key="frame" x="157" y="272.5" width="61" height="122"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hor-hF-vhy">
+                                        <rect key="frame" x="8" y="8" width="45" height="30"/>
+                                        <state key="normal" title="Stamp"/>
+                                        <connections>
+                                            <action selector="stampClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="G5v-JR-HdR"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xTP-Td-Kqi">
+                                        <rect key="frame" x="8" y="46" width="45" height="30"/>
+                                        <state key="normal" title="Print"/>
+                                        <connections>
+                                            <action selector="printClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kvi-p2-Eer"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Oye-Bg-Eaj">
+                                        <rect key="frame" x="8" y="84" width="45" height="30"/>
+                                        <state key="normal" title="Delete"/>
+                                        <connections>
+                                            <action selector="deleteClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y9z-9w-wm5"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <constraints>
+                                    <constraint firstItem="Oye-Bg-Eaj" firstAttribute="trailing" secondItem="b1L-Cv-dDu" secondAttribute="trailingMargin" id="IJl-Lg-lNa"/>
+                                    <constraint firstItem="Oye-Bg-Eaj" firstAttribute="top" secondItem="xTP-Td-Kqi" secondAttribute="bottom" constant="8" symbolic="YES" id="JXJ-1a-Syx"/>
+                                    <constraint firstItem="Hor-hF-vhy" firstAttribute="leading" secondItem="b1L-Cv-dDu" secondAttribute="leadingMargin" id="MDi-hW-QAQ"/>
+                                    <constraint firstAttribute="trailingMargin" secondItem="Hor-hF-vhy" secondAttribute="trailing" id="Oi7-OE-mgX"/>
+                                    <constraint firstItem="xTP-Td-Kqi" firstAttribute="leading" secondItem="b1L-Cv-dDu" secondAttribute="leadingMargin" id="SmO-CZ-PlX"/>
+                                    <constraint firstItem="Oye-Bg-Eaj" firstAttribute="leading" secondItem="b1L-Cv-dDu" secondAttribute="leadingMargin" id="Y6J-mr-fJT"/>
+                                    <constraint firstAttribute="bottomMargin" secondItem="Oye-Bg-Eaj" secondAttribute="bottom" id="m66-MU-y2H"/>
+                                    <constraint firstAttribute="trailingMargin" secondItem="xTP-Td-Kqi" secondAttribute="trailing" id="na4-QB-sja"/>
+                                    <constraint firstItem="xTP-Td-Kqi" firstAttribute="top" secondItem="Hor-hF-vhy" secondAttribute="bottom" constant="8" symbolic="YES" id="o7g-PU-fzx"/>
+                                    <constraint firstItem="Hor-hF-vhy" firstAttribute="top" secondItem="b1L-Cv-dDu" secondAttribute="topMargin" id="y2E-p7-nLP"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="b1L-Cv-dDu" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="If7-me-i4j"/>
+                            <constraint firstItem="b1L-Cv-dDu" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="MM4-n3-Zdk"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="139" y="139"/>
+        </scene>
+    </scenes>
+</document>
