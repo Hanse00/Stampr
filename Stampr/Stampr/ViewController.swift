@@ -9,12 +9,18 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController {
+class ViewController: UITableViewController {
     var container: NSPersistentContainer!
     lazy var fetchedResultsController: NSFetchedResultsController<Stamp> = {
         let controller = NSFetchedResultsController(fetchRequest: Stamp.sortedFetchRequest(), managedObjectContext: self.container.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         controller.delegate = self
         return controller
+    }()
+    lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .long
+        return formatter
     }()
     
     override func viewDidLoad() {
@@ -27,6 +33,7 @@ class ViewController: UIViewController {
         }
     }
     
+    // MARK: User Interaction
     override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         if motion == .motionShake {
             let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -57,6 +64,29 @@ class ViewController: UIViewController {
 
 }
 
+// MARK: - UITableViewController
+extension ViewController {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return fetchedResultsController.fetchedObjects?.count ?? 0
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "StampCell", for: indexPath)
+        let note = fetchedResultsController.object(at: indexPath)
+        guard let date = note.date else {
+            return cell
+        }
+        
+        cell.textLabel?.text = dateFormatter.string(from: date)
+        
+        return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
 
 // MARK: - NSFetchedResultsControllerDelegate
 extension ViewController: NSFetchedResultsControllerDelegate {
@@ -68,12 +98,16 @@ extension ViewController: NSFetchedResultsControllerDelegate {
         switch type {
         case .insert:
             print("Inserting \(anObject) to \(newIndexPath!)")
+            tableView.insertRows(at: [newIndexPath!], with: .automatic)
         case .delete:
             print("Deleting \(anObject) from \(indexPath!)")
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
         case .update:
             print("Updating \(anObject) at \(indexPath!)")
+            tableView.reloadRows(at: [indexPath!], with: .automatic)
         case .move:
             print("Moving \(anObject) from \(indexPath!) to \(newIndexPath!)")
+            tableView.moveRow(at: indexPath!, to: newIndexPath!)
         @unknown default:
             fatalError("Some other option we weren't aware of")
         }
