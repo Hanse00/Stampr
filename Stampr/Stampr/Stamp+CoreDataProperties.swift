@@ -13,10 +13,6 @@ import CoreData
 
 extension Stamp {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<Stamp> {
-        return NSFetchRequest<Stamp>(entityName: "Stamp")
-    }
-
     @NSManaged public var date: Date?
 
 }
