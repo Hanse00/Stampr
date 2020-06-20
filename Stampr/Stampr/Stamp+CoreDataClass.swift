@@ -36,19 +36,23 @@ public class Stamp: NSManagedObject {
     }
     
     @nonobjc public class func add(to container: NSPersistentContainer) {
+        print("Creating new stamp")
         let stamp = Stamp(context: container.viewContext)
         stamp.date = Date()
         do {
             try container.viewContext.save()
+            print("Created stamp: \(stamp)")
         } catch {
             fatalError("Unable to save new stamp: \(error)")
         }
     }
     
     @nonobjc public func delete() {
+        print("Deleting stamp: \(self)")
         do {
             self.managedObjectContext?.delete(self)
             try self.managedObjectContext?.save()
+            print("Deleted stamp")
         } catch {
             fatalError("Unable to delete stamp: \(error)")
         }

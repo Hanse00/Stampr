@@ -82,6 +82,14 @@ extension ViewController {
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let stamp = fetchedResultsController.object(at: indexPath)
+            print("Swiped to delete \(stamp) from \(indexPath)")
+            stamp.delete()
+        }
+    }
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
