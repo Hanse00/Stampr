@@ -9,52 +9,15 @@
 import UIKit
 import CoreData
 
-enum Section: CaseIterable {
-    case main
-}
-
-// MARK: - Stamp Data Source
-class StampDataSource<SectionIdentifierType, ItemIdentifierType>: UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType> where SectionIdentifierType: Hashable, ItemIdentifierType: Hashable {
-    var fetchedResultsController: NSFetchedResultsController<Stamp>!
-    
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            DispatchQueue.global(qos: .userInteractive).async {
-                let stamp = self.fetchedResultsController.object(at: indexPath)
-                print("Swiped to delete \(stamp) from \(indexPath)")
-                stamp.delete()
-            }
-        }
-    }
-}
-
 // MARK: - View Controller
 class ViewController: UIViewController {
-    var container: NSPersistentContainer!
     @IBOutlet weak var tableView: UITableView!
     
-    
+    var container: NSPersistentContainer!
     lazy var fetchedResultsController: NSFetchedResultsController<Stamp> = {
         let controller = NSFetchedResultsController(fetchRequest: Stamp.sortedFetchRequest(), managedObjectContext: self.container.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         controller.delegate = self
         return controller
-    }()
-    lazy var dataSource: StampDataSource<Section, NSManagedObjectID> = {
-        return StampDataSource(tableView: tableView) {
-            (tableView, indexPath, objectID) -> UITableViewCell? in
-            let cell = tableView.dequeueReusableCell(withIdentifier: "StampCell", for: indexPath)
-            
-            guard let stamp = self.container.viewContext.object(with: objectID) as? Stamp, let date = stamp.date else {
-                return cell
-            }
-            
-            cell.textLabel?.text = self.dateFormatter.string(from: date)
-            return cell
-        }
     }()
     lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -66,12 +29,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
-        tableView.dataSource = dataSource
-        dataSource.fetchedResultsController = fetchedResultsController
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+        tableView.dataSource = self
         
         do {
             try fetchedResultsController.performFetch()
@@ -132,13 +90,56 @@ extension ViewController: UITableViewDelegate {
     }
 }
 
+// MARK: - UITableViewDataSource
+extension ViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        fetchedResultsController.fetchedObjects?.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "StampCell", for: indexPath)
+        let stamp = fetchedResultsController.object(at: indexPath)
+        
+        guard let date = stamp.date else {
+            return cell
+        }
+        
+        cell.textLabel?.text = dateFormatter.string(from: date)
+        return cell
+    }
+    
+    
+}
+
 
 // MARK: - NSFetchedResultsControllerDelegate
 extension ViewController: NSFetchedResultsControllerDelegate {
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
-        DispatchQueue.global(qos: .userInteractive).async {
-            print("Applying snapshot to datasource")
-            self.dataSource.apply(snapshot as NSDiffableDataSourceSnapshot<Section, NSManagedObjectID>)
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        print("Beginning updates")
+        tableView.beginUpdates()
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            print("Inserting: \(newIndexPath!)")
+            tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        case .update:
+            print("Updating: \(indexPath!)")
+            tableView.reloadRows(at: [indexPath!], with: .automatic)
+        case .delete:
+            print("Deleting: \(indexPath!)")
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+        case .move:
+            print("Moving from: \(indexPath!) to \(newIndexPath!)")
+            tableView.moveRow(at: indexPath!, to: newIndexPath!)
+        @unknown default:
+            fatalError("Unexpected case for NSFetchedResultsChangeType")
         }
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        print("Ending updates")
+        tableView.endUpdates()
     }
 }
