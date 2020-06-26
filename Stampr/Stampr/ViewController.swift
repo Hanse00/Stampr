@@ -9,12 +9,29 @@
 import UIKit
 import CoreData
 
+enum Section: CaseIterable {
+    case main
+}
+
 class ViewController: UITableViewController {
     var container: NSPersistentContainer!
     lazy var fetchedResultsController: NSFetchedResultsController<Stamp> = {
         let controller = NSFetchedResultsController(fetchRequest: Stamp.sortedFetchRequest(), managedObjectContext: self.container.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         controller.delegate = self
         return controller
+    }()
+    lazy var dataSource: UITableViewDiffableDataSource<Section, NSManagedObjectID> = {
+        return UITableViewDiffableDataSource(tableView: tableView) {
+            (tableView, indexPath, objectID) -> UITableViewCell? in
+            let cell = tableView.dequeueReusableCell(withIdentifier: "StampCell", for: indexPath)
+            
+            guard let stamp = self.container.viewContext.object(with: objectID) as? Stamp, let date = stamp.date else {
+                return cell
+            }
+            
+            cell.textLabel?.text = self.dateFormatter.string(from: date)
+            return cell
+        }
     }()
     lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -25,6 +42,11 @@ class ViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.dataSource = dataSource
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
         do {
             try fetchedResultsController.performFetch()
@@ -66,22 +88,6 @@ class ViewController: UITableViewController {
 
 // MARK: - UITableViewController
 extension ViewController {
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fetchedResultsController.fetchedObjects?.count ?? 0
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "StampCell", for: indexPath)
-        let note = fetchedResultsController.object(at: indexPath)
-        guard let date = note.date else {
-            return cell
-        }
-        
-        cell.textLabel?.text = dateFormatter.string(from: date)
-        
-        return cell
-    }
-    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let stamp = fetchedResultsController.object(at: indexPath)
@@ -98,30 +104,8 @@ extension ViewController {
 
 // MARK: - NSFetchedResultsControllerDelegate
 extension ViewController: NSFetchedResultsControllerDelegate {
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("Going to change content")
-    }
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        switch type {
-        case .insert:
-            print("Inserting \(anObject) to \(newIndexPath!)")
-            tableView.insertRows(at: [newIndexPath!], with: .automatic)
-        case .delete:
-            print("Deleting \(anObject) from \(indexPath!)")
-            tableView.deleteRows(at: [indexPath!], with: .automatic)
-        case .update:
-            print("Updating \(anObject) at \(indexPath!)")
-            tableView.reloadRows(at: [indexPath!], with: .automatic)
-        case .move:
-            print("Moving \(anObject) from \(indexPath!) to \(newIndexPath!)")
-            tableView.moveRow(at: indexPath!, to: newIndexPath!)
-        @unknown default:
-            fatalError("Some other option we weren't aware of")
-        }
-    }
-    
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        print("Done changing content")
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
+        print("Applying snapshot to datasource")
+        dataSource.apply(snapshot as NSDiffableDataSourceSnapshot<Section, NSManagedObjectID>)
     }
 }
