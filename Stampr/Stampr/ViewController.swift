@@ -13,6 +13,24 @@ enum Section: CaseIterable {
     case main
 }
 
+// MARK: - Stamp Data Source
+class StampDataSource<SectionIdentifierType, ItemIdentifierType>: UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType> where SectionIdentifierType: Hashable, ItemIdentifierType: Hashable {
+    var fetchedResultsController: NSFetchedResultsController<Stamp>!
+    
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let stamp = fetchedResultsController.object(at: indexPath)
+            print("Swiped to delete \(stamp) from \(indexPath)")
+            stamp.delete()
+        }
+    }
+}
+
+// MARK: - View Controller
 class ViewController: UITableViewController {
     var container: NSPersistentContainer!
     lazy var fetchedResultsController: NSFetchedResultsController<Stamp> = {
@@ -20,8 +38,8 @@ class ViewController: UITableViewController {
         controller.delegate = self
         return controller
     }()
-    lazy var dataSource: UITableViewDiffableDataSource<Section, NSManagedObjectID> = {
-        return UITableViewDiffableDataSource(tableView: tableView) {
+    lazy var dataSource: StampDataSource<Section, NSManagedObjectID> = {
+        return StampDataSource(tableView: tableView) {
             (tableView, indexPath, objectID) -> UITableViewCell? in
             let cell = tableView.dequeueReusableCell(withIdentifier: "StampCell", for: indexPath)
             
@@ -42,6 +60,7 @@ class ViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        dataSource.fetchedResultsController = fetchedResultsController
         tableView.dataSource = dataSource
     }
     
@@ -88,14 +107,6 @@ class ViewController: UITableViewController {
 
 // MARK: - UITableViewController
 extension ViewController {
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let stamp = fetchedResultsController.object(at: indexPath)
-            print("Swiped to delete \(stamp) from \(indexPath)")
-            stamp.delete()
-        }
-    }
-    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
