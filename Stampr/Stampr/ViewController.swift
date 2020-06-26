@@ -31,8 +31,10 @@ class StampDataSource<SectionIdentifierType, ItemIdentifierType>: UITableViewDif
 }
 
 // MARK: - View Controller
-class ViewController: UITableViewController {
+class ViewController: UIViewController {
     var container: NSPersistentContainer!
+    @IBOutlet var tableView: UITableView!
+    
     lazy var fetchedResultsController: NSFetchedResultsController<Stamp> = {
         let controller = NSFetchedResultsController(fetchRequest: Stamp.sortedFetchRequest(), managedObjectContext: self.container.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         controller.delegate = self
@@ -60,8 +62,9 @@ class ViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        dataSource.fetchedResultsController = fetchedResultsController
+        tableView.delegate = self
         tableView.dataSource = dataSource
+        dataSource.fetchedResultsController = fetchedResultsController
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -106,8 +109,8 @@ class ViewController: UITableViewController {
 }
 
 // MARK: - UITableViewController
-extension ViewController {
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+extension ViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
