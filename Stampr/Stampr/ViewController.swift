@@ -33,7 +33,8 @@ class StampDataSource<SectionIdentifierType, ItemIdentifierType>: UITableViewDif
 // MARK: - View Controller
 class ViewController: UIViewController {
     var container: NSPersistentContainer!
-    @IBOutlet var tableView: UITableView!
+    @IBOutlet weak var tableView: UITableView!
+    
     
     lazy var fetchedResultsController: NSFetchedResultsController<Stamp> = {
         let controller = NSFetchedResultsController(fetchRequest: Stamp.sortedFetchRequest(), managedObjectContext: self.container.viewContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -78,32 +79,40 @@ class ViewController: UIViewController {
     }
     
     // MARK: User Interaction
+    @IBAction func buttonClicked(_ sender: Any) {
+        openButtonUI()
+    }
+    
     override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         if motion == .motionShake {
-            let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-            let addAction = UIAlertAction(title: "Add", style: .default) { (_) in
-                Stamp.add(to: self.container)
-            }
-            let printAction = UIAlertAction(title: "Print", style: .default) { (_) in
-                print("Stamps as seen by Core Data:")
-                print(Stamp.getSortedStampts(from: self.container))
-                print("Stamps as seen by NSFetchedResultsController:")
-                let stamps = self.fetchedResultsController.fetchedObjects!
-                for stamp in stamps {
-                    print("\(String(describing: self.fetchedResultsController.indexPath(forObject: stamp))): \(stamp)")
-                }
-            }
-            let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (_) in
-                Stamp.deleteLatest(from: self.container)
-            }
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-            controller.addAction(addAction)
-            controller.addAction(printAction)
-            controller.addAction(deleteAction)
-            controller.addAction(cancelAction)
-            
-            present(controller, animated: true)
+            openButtonUI()
         }
+    }
+    
+    func openButtonUI() {
+        let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let addAction = UIAlertAction(title: "Add", style: .default) { (_) in
+            Stamp.add(to: self.container)
+        }
+        let printAction = UIAlertAction(title: "Print", style: .default) { (_) in
+            print("Stamps as seen by Core Data:")
+            print(Stamp.getSortedStampts(from: self.container))
+            print("Stamps as seen by NSFetchedResultsController:")
+            let stamps = self.fetchedResultsController.fetchedObjects!
+            for stamp in stamps {
+                print("\(String(describing: self.fetchedResultsController.indexPath(forObject: stamp))): \(stamp)")
+            }
+        }
+        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (_) in
+            Stamp.deleteLatest(from: self.container)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        controller.addAction(addAction)
+        controller.addAction(printAction)
+        controller.addAction(deleteAction)
+        controller.addAction(cancelAction)
+        
+        present(controller, animated: true)
     }
 
 }
