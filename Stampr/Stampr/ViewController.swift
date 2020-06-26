@@ -52,25 +52,19 @@ class ViewController: UIViewController {
     func openButtonUI() {
         let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let addAction = UIAlertAction(title: "Add", style: .default) { (_) in
-            DispatchQueue.global(qos: .userInteractive).async {
-                Stamp.add(to: self.container)
-            }
+            Stamp.add(to: self.container)
         }
         let printAction = UIAlertAction(title: "Print", style: .default) { (_) in
-            DispatchQueue.global(qos: .utility).async {
-                print("Stamps as seen by Core Data:")
-                print(Stamp.getSortedStampts(from: self.container))
-                print("Stamps as seen by NSFetchedResultsController:")
-                let stamps = self.fetchedResultsController.fetchedObjects!
-                for stamp in stamps {
-                    print("\(self.fetchedResultsController.indexPath(forObject: stamp)!): \(stamp)")
-                }
+            print("Stamps as seen by Core Data:")
+            print(Stamp.getSortedStampts(from: self.container))
+            print("Stamps as seen by NSFetchedResultsController:")
+            let stamps = self.fetchedResultsController.fetchedObjects!
+            for stamp in stamps {
+                print("\(self.fetchedResultsController.indexPath(forObject: stamp)!): \(stamp)")
             }
         }
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (_) in
-            DispatchQueue.global(qos: .userInteractive).async {
-                Stamp.deleteLatest(from: self.container)
-            }
+            Stamp.deleteLatest(from: self.container)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         controller.addAction(addAction)
