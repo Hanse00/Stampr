@@ -1,2 +1,5 @@
 # Don't sync user data
 **/xcuserdata/
+
+# Don't sync macOS UI state
+.DS_Store
