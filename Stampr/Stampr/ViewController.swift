@@ -86,7 +86,7 @@ extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let stamp = fetchedResultsController.object(at: indexPath)
-            stamp.delete()
+            stamp.delete(from: container)
         }
     }
 }
