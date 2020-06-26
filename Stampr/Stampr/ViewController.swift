@@ -23,9 +23,11 @@ class StampDataSource<SectionIdentifierType, ItemIdentifierType>: UITableViewDif
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let stamp = fetchedResultsController.object(at: indexPath)
-            print("Swiped to delete \(stamp) from \(indexPath)")
-            stamp.delete()
+            DispatchQueue.global(qos: .userInteractive).async {
+                let stamp = self.fetchedResultsController.object(at: indexPath)
+                print("Swiped to delete \(stamp) from \(indexPath)")
+                stamp.delete()
+            }
         }
     }
 }
@@ -92,19 +94,25 @@ class ViewController: UIViewController {
     func openButtonUI() {
         let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let addAction = UIAlertAction(title: "Add", style: .default) { (_) in
-            Stamp.add(to: self.container)
+            DispatchQueue.global(qos: .userInteractive).async {
+                Stamp.add(to: self.container)
+            }
         }
         let printAction = UIAlertAction(title: "Print", style: .default) { (_) in
-            print("Stamps as seen by Core Data:")
-            print(Stamp.getSortedStampts(from: self.container))
-            print("Stamps as seen by NSFetchedResultsController:")
-            let stamps = self.fetchedResultsController.fetchedObjects!
-            for stamp in stamps {
-                print("\(String(describing: self.fetchedResultsController.indexPath(forObject: stamp))): \(stamp)")
+            DispatchQueue.global(qos: .utility).async {
+                print("Stamps as seen by Core Data:")
+                print(Stamp.getSortedStampts(from: self.container))
+                print("Stamps as seen by NSFetchedResultsController:")
+                let stamps = self.fetchedResultsController.fetchedObjects!
+                for stamp in stamps {
+                    print("\(self.fetchedResultsController.indexPath(forObject: stamp)!): \(stamp)")
+                }
             }
         }
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (_) in
-            Stamp.deleteLatest(from: self.container)
+            DispatchQueue.global(qos: .userInteractive).async {
+                Stamp.deleteLatest(from: self.container)
+            }
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         controller.addAction(addAction)
@@ -117,7 +125,7 @@ class ViewController: UIViewController {
 
 }
 
-// MARK: - UITableViewController
+// MARK: - UITableViewDelegate
 extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -128,7 +136,9 @@ extension ViewController: UITableViewDelegate {
 // MARK: - NSFetchedResultsControllerDelegate
 extension ViewController: NSFetchedResultsControllerDelegate {
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
-        print("Applying snapshot to datasource")
-        dataSource.apply(snapshot as NSDiffableDataSourceSnapshot<Section, NSManagedObjectID>)
+        DispatchQueue.global(qos: .userInteractive).async {
+            print("Applying snapshot to datasource")
+            self.dataSource.apply(snapshot as NSDiffableDataSourceSnapshot<Section, NSManagedObjectID>)
+        }
     }
 }
