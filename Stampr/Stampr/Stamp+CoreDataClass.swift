@@ -21,7 +21,6 @@ public class Stamp: NSManagedObject {
         let request: NSFetchRequest<Stamp> = fetchRequest()
         let sort = NSSortDescriptor(key: "date", ascending: false)
         request.sortDescriptors = [sort]
-        request.returnsObjectsAsFaults = false
         return request
     }
     
